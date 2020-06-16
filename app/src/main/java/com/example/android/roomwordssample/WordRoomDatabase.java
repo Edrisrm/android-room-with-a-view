@@ -41,6 +41,7 @@ public abstract class WordRoomDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (WordRoomDatabase.class) {
                 if (INSTANCE == null) {
+                    //room es una libreria, llamamos a un creador de db que tiene
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             WordRoomDatabase.class, "word_database")
                             // Wipes and rebuilds instead of migrating if no Migration object.
@@ -89,7 +90,6 @@ public abstract class WordRoomDatabase extends RoomDatabase {
             // Start the app with a clean database every time.
             // Not needed if you only populate on creation.
             mDao.deleteAll();
-
             Word word = new Word("Hello");
             mDao.insert(word);
             word = new Word("World");

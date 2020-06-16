@@ -49,4 +49,9 @@ public class WordViewModel extends AndroidViewModel {
     void insert(Word word) {
         mRepository.insert(word);
     }
+    void update(Word word) {
+        mRepository.update(word);
+    }
+    void deleteWord(Word word) {mRepository.deleteWord(word);}
+
 }

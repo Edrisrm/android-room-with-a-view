@@ -37,9 +37,11 @@ class WordRepository {
     // See the BasicSample in the android-architecture-components repository at
     // https://github.com/googlesamples
     WordRepository(Application application) {
+        //nueva instancia de la base de datos
         WordRoomDatabase db = WordRoomDatabase.getDatabase(application);
+        //lo mismo que decir mWordDao = new WordDao();
         mWordDao = db.wordDao();
-        mAllWords = mWordDao.getAlphabetizedWords();
+        mAllWords = mWordDao.getAlphabetizedWords();//metodo que lista en orden alfabetico
     }
 
     // Room executes all queries on a separate thread.
@@ -54,11 +56,38 @@ class WordRepository {
     void insert(Word word) {
         new insertAsyncTask(mWordDao).execute(word);
     }
+    void update(Word word) { new uptadeAsyncTask(mWordDao).execute(word); }
+    void deleteWord(Word word){new deleteWordAsyncTask(mWordDao).execute(word);}
 
+    private static class deleteWordAsyncTask extends AsyncTask<Word, Void, Void> {
+        private WordDao mAsyncTaskDao;
+
+        deleteWordAsyncTask(WordDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Word... params) {
+            mAsyncTaskDao.delete(params[0]);
+            return null;
+        }
+    }
+
+    private  static  class  uptadeAsyncTask extends  AsyncTask<Word, Void, Void>{
+        private  WordDao mAsyncTaskDao;
+
+        uptadeAsyncTask(WordDao dao){ mAsyncTaskDao = dao;}
+        @Override
+        protected Void doInBackground(Word... words) {
+            mAsyncTaskDao.update(words[0]);
+            return null;
+        }
+    }
+    //clase
     private static class insertAsyncTask extends AsyncTask<Word, Void, Void> {
 
         private WordDao mAsyncTaskDao;
-
+        //constructor
         insertAsyncTask(WordDao dao) {
             mAsyncTaskDao = dao;
         }
