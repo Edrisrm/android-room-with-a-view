@@ -16,6 +16,7 @@ package com.example.android.roomwordssample;
  * limitations under the License.
  */
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -27,7 +28,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public static  final int EDIT_WORD_ACTIVITY_REQUEST_CODE = 2;
 
     private WordViewModel mWordViewModel;
-
+    private Button editButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +72,27 @@ public class MainActivity extends AppCompatActivity {
                 adapter.setWords(words);
             }
         });
+        recyclerView.addOnItemTouchListener(
+                new RecyclerViewClickItemListener(this, new RecyclerViewClickItemListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, final int position) {
+                        editButton = findViewById(R.id.button_edit);
+
+                        editButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Toast.makeText(getApplicationContext(), "Edit button is called"+adapter.getWordAt(position).getWord() , Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(MainActivity.this, NewWordActivity.class);
+                                intent.putExtra(ApplicationString.EXTRA_REPLY_WORD_ID, adapter.getWordAt(position).getId());
+                                intent.putExtra(ApplicationString.EXTRA_REPLY, adapter.getWordAt(position).getWord());
+
+                                startActivityForResult(intent, EDIT_WORD_ACTIVITY_REQUEST_CODE);
+                            }
+                        });
+                    }
+                })
+        );
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -109,11 +134,20 @@ public class MainActivity extends AppCompatActivity {
                 if (requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
                     Word word = new Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY));
                     mWordViewModel.insert(word);
-                } else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            R.string.empty_not_saved,
-                            Toast.LENGTH_LONG).show();
+                } else if (requestCode == EDIT_WORD_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK){
+                    int id = data.getIntExtra(ApplicationString.EXTRA_REPLY_WORD_ID, -1);
+                    if (id == -1){
+                        Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String palabra = data.getStringExtra(ApplicationString.EXTRA_REPLY);
+
+                    Word word = new Word(palabra);
+                    word.setId(id);
+                    mWordViewModel.update(word);
+                    Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();
                 }
 
         }

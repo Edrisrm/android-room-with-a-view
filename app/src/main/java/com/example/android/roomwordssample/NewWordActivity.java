@@ -29,7 +29,7 @@ import android.widget.EditText;
  */
 
 public class NewWordActivity extends AppCompatActivity {
-
+    public static final String EXTRA_REPLY_WORD_ID = "com.example.android.wordlistsql.EXTRA_ID";
     public static final String EXTRA_REPLY = "com.example.android.wordlistsql.REPLY";
 
     private EditText mEditWordView;
@@ -40,6 +40,14 @@ public class NewWordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_word);
         mEditWordView = findViewById(R.id.edit_word);
 
+        Intent intent = getIntent();
+        if (intent.hasExtra(EXTRA_REPLY_WORD_ID)){
+            setTitle("Edit Word");
+            mEditWordView.setText(intent.getStringExtra(EXTRA_REPLY_WORD_ID));
+        }else {
+            setTitle("Add word");
+        }
+
         final Button button = findViewById(R.id.button_save);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -49,6 +57,12 @@ public class NewWordActivity extends AppCompatActivity {
                 } else {
                     String word = mEditWordView.getText().toString();
                     replyIntent.putExtra(EXTRA_REPLY, word);
+
+                    int id = getIntent().getIntExtra(EXTRA_REPLY_WORD_ID, -1);
+                    if (id != -1){
+                        replyIntent.putExtra(EXTRA_REPLY_WORD_ID,id);
+                    }
+
                     setResult(RESULT_OK, replyIntent);
                 }
                 finish();
